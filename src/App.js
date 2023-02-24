@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import TodoInsert from './components/TodoInsert';
 import TodoList from './components/TodoList';
 import TodoTemplate from './components/TodoTemplate';
@@ -13,9 +13,25 @@ const App = () => {
     { id: 6, text: 'react 공식문서 튜토리얼 따라해보기', checked: false },
     { id: 7, text: '생활코딩-seomal map에서 react 강의 보기', checked: false },
   ]);
+
+  const nextId = useRef(8);
+
+  const onInsert = useCallback(
+    (text) => {
+      const todo = {
+        id: nextId.current,
+        text,
+        checked: false,
+      };
+      // const nextTodos = todos.concat({ id: id, text: text, checked: false });
+      setTodos(todos.concat(todo));
+      nextId.current += 1;
+    },
+    [todos],
+  );
   return (
     <TodoTemplate>
-      <TodoInsert />
+      <TodoInsert onInsert={onInsert} />
       <TodoList todos={todos} />
     </TodoTemplate>
   );
