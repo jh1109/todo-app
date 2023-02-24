@@ -1,11 +1,13 @@
 import TodoListItem from './TodoListItem';
 
-const TodoList = () => {
+const TodoList = ({ todos }) => {
+  // console.log(props.todos);
+  // console.log(todos);
   return (
     <div className="TodoList">
-      <TodoListItem />
-      <TodoListItem />
-      <TodoListItem />
+      {todos.map((todo) => (
+        <TodoListItem todo={todo} key={todo.id} />
+      ))}
     </div>
   );
 };
