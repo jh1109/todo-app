@@ -1,50 +1,54 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useReducer, useRef } from 'react';
 import TodoInsert from './components/TodoInsert';
 import TodoList from './components/TodoList';
 import TodoTemplate from './components/TodoTemplate';
 
-const App = () => {
-  const [todos, setTodos] = useState([
-    { id: 1, text: '"리액트를 다루는 기술" 1회 완독', checked: false },
-    { id: 2, text: '생활코딩-React 2022 개정판 보기', checked: true },
-    { id: 3, text: '[과제] 제품 구매 카드 구현하기', checked: false },
-    { id: 4, text: '리액트로 아코디언 구현해보기', checked: false },
-    { id: 5, text: '유데미 리액트 강의 보기', checked: false },
-    { id: 6, text: 'react 공식문서 튜토리얼 따라해보기', checked: false },
-    { id: 7, text: '생활코딩-seomal map에서 react 강의 보기', checked: false },
-  ]);
-
-  const nextId = useRef(8);
-
-  const onInsert = useCallback(
-    (text) => {
-      const todo = {
-        id: nextId.current,
-        text,
-        checked: false,
-      };
-      // const nextTodos = todos.concat({ id: id, text: text, checked: false });
-      setTodos(todos.concat(todo));
-      nextId.current += 1;
-    },
-    [todos],
-  );
-  const onRemove = useCallback(
-    (id) => {
-      setTodos(todos.filter((todo) => todo.id !== id));
-    },
-    [todos],
-  );
-  const onToggle = useCallback(
-    (id) => {
-      setTodos(
-        todos.map((todo) =>
-          todo.id === id ? { ...todo, checked: !todo.checked } : todo,
-        ),
+function createBulkTodos() {
+  const array = [];
+  for (let i = 1; i <= 2500; i++) {
+    array.push({
+      id: i,
+      text: `할 일 ${i}`,
+      checked: false,
+    });
+  }
+  return array;
+}
+function todoReducer(todos, action) {
+  switch (action.type) {
+    case 'INSERT':
+      return todos.concat(action.todo);
+    case 'REMOVE':
+      return todos.filter((todo) => todo.id !== action.id);
+    case 'TOGGLE':
+      return todos.map((todo) =>
+        todo.id === action.id ? { ...todo, checked: !todo.checked } : todo,
       );
-    },
-    [todos],
-  );
+    default:
+      return todos;
+  }
+}
+
+const App = () => {
+  const [todos, dispatch] = useReducer(todoReducer, undefined, createBulkTodos);
+
+  const nextId = useRef(2501);
+
+  const onInsert = useCallback((text) => {
+    const todo = {
+      id: nextId.current,
+      text,
+      checked: false,
+    };
+    dispatch({ type: 'INSERT', todo });
+    nextId.current += 1;
+  }, []);
+  const onRemove = useCallback((id) => {
+    dispatch({ type: 'REMOVE', id });
+  }, []);
+  const onToggle = useCallback((id) => {
+    dispatch({ type: 'TOGGLE', id });
+  }, []);
 
   return (
     <TodoTemplate>
